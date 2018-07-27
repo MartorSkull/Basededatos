@@ -38,6 +38,7 @@ FROM rental
 	INNER JOIN customer c USING (customer_id)
 	INNER JOIN inventory USING (inventory_id)
 	INNER JOIN film USING (film_id)
+WHERE return_date IS NOT NULL
 ORDER BY store_id, c.last_name;
 
 
