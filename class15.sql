@@ -55,21 +55,29 @@ CREATE OR REPLACE VIEW actor_information AS
 	GROUP BY actor.actor_id;
 	
 #5
-#Se seleccionan el id, primer nombre, apellido  del actor 
+#we select id, firstname, lastname  del actor 
 SELECT a.actor_id AS actor_id, a.first_name AS first_name, a.last_name AS last_name,
-    group_concat(DISTINCT concat(
-    	c.name, ': ', (SELECT group_concat(f.title ORDER BY f.title ASC separator ', ')
+	# then we concatenate the category name and 
+    group_concat(
+    DISTINCT concat(
+    	c.name, ': ', (
+    	# the movies that have that category and the actor in it
+    	SELECT group_concat(f.title ORDER BY f.title ASC separator ', ')
                 FROM sakila.film f 
+                # here we join the tables
                 	JOIN sakila.film_category fc ON(f.film_id = fc.film_id)
                     JOIN sakila.film_actor fa ON(f.film_id = fa.film_id)
+                #and check that the actor and the category are the saem
                 WHERE fc.category_id = c.category_id
                     AND fa.actor_id = a.actor_id)
         )
     	ORDER BY c.name ASC SEPARATOR '; ') AS film_info 
+    # we add all the tables
     FROM sakila.actor a
     	LEFT JOIN sakila.film_actor fa ON(a.actor_id = fa.actor_id)
         LEFT JOIN sakila.film_category fc ON(fa.film_id = fc.film_id)
     	LEFT JOIN sakila.category c ON(fc.category_id = c.category_id)
+# group by actors so that we can group concat
 GROUP BY a.actor_id, a.first_name, a.last_name
 
 SELECT * FROM actor_info
